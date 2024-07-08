@@ -47,7 +47,7 @@ fn main() {
     }
 
     if !timer.terminated() {
-        Notificator::show_notification("Interval expired.", 10);
+        Notificator::show_notification("Interval expired.", 0);
     }
     Tui::clean_up().unwrap();
 }
