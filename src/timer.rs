@@ -71,13 +71,7 @@ impl Timer {
     }
 
     pub fn percentage_elapsed(&self) -> f64 {
-        let result = self.elapsed_ms as f64 / self.duration_ms as f64;
-
-        if result > 1.0 {
-            return 1.0;
-        }
-
-        result
+        self.elapsed_ms as f64 / self.duration_ms as f64
     }
 
     pub fn remaining_time_formatted(&self) -> String {

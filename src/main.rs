@@ -14,7 +14,7 @@ mod tui;
 #[command(version, about, long_about = None)]
 struct Args {
     /// Duration of interval in minutes
-    #[arg(short, long, default_value = "20", )]
+    #[arg(short, long, default_value = "20")]
     duration: i64,
 }
 
@@ -47,7 +47,7 @@ fn main() {
     }
 
     if !timer.terminated() {
-        Notificator::show_notification("Interval expired", 10);
+        Notificator::show_notification("Interval expired.", 10);
     }
     Tui::clean_up().unwrap();
 }
