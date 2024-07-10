@@ -5,16 +5,18 @@ use notify_rust::Notification;
 pub struct Notificator {}
 
 impl Notificator {
-    pub fn show_notification(text: &str, timeout_ms: u64) {
+    pub fn show_notification(text: &str, timeout_ms: u64) -> Result<&str, &str> {
         let result = Notification::new()
             .appname("paradajz")
             .summary(text)
             .timeout(Duration::from_millis(timeout_ms))
             .show();
 
-        match result {
-            Ok(_) => println!("notification displayed"),
-            Err(_) => println!("error displaying notification"),
-        }
+        let result = match result {
+            Ok(_) => Ok("notification displayed"),
+            Err(_) => Err("error displaying notification"),
+        };
+
+        result
     }
 }

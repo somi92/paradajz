@@ -8,10 +8,11 @@ pub struct Timer {
     paused: bool,
     terminated: bool,
     finish_at: DateTime<Local>,
+    on_expired: fn() -> (),
 }
 
 impl Timer {
-    pub fn new(duration_ms: i64) -> Self {
+    pub fn new(duration_ms: i64, on_expired: fn() -> ()) -> Self {
         let now = Local::now();
         let finish_at = now + Duration::milliseconds(duration_ms);
         let elapsed_ms = 0;
@@ -23,6 +24,7 @@ impl Timer {
             finish_at,
             paused: false,
             terminated: false,
+            on_expired,
         }
     }
 
@@ -31,7 +33,7 @@ impl Timer {
         self.duration_ms = duration_ms;
         self.finish_at = now + Duration::milliseconds(duration_ms);
         self.elapsed_ms = 0;
-        self.remaining_ms = duration_ms - self.elapsed_ms;
+        self.remaining_ms = self.duration_ms - self.elapsed_ms;
         self.paused = false;
         self.terminated = false;
     }
@@ -47,6 +49,10 @@ impl Timer {
         } else {
             self.remaining_ms = self.finish_at.timestamp_millis() - now.timestamp_millis();
             self.elapsed_ms = self.duration_ms - self.remaining_ms;
+        }
+
+        if self.is_expired() {
+            (self.on_expired)();
         }
     }
 
@@ -70,8 +76,12 @@ impl Timer {
         self.terminated
     }
 
-    pub fn percentage_elapsed(&self) -> f64 {
-        self.elapsed_ms as f64 / self.duration_ms as f64
+    pub fn elapsed_ratio(&self) -> f64 {
+        let ratio = self.elapsed_ms as f64 / self.duration_ms as f64;
+        if ratio > 1.0 {
+            return 1.0;
+        }
+        ratio
     }
 
     pub fn remaining_time_formatted(&self) -> String {

@@ -32,24 +32,18 @@ impl Tui {
             .draw(|frame| {
                 let layout = Layout::default()
                     .direction(Direction::Vertical)
-                    .constraints(vec![
-                        Constraint::Percentage(48),
-                        Constraint::Max(1),
-                        Constraint::Max(1),
-                    ])
+                    .constraints(vec![Constraint::Max(3), Constraint::Max(1)])
                     .split(frame.size());
 
                 let text = format!(
-                    "{} - {} {}, {}%",
+                    "{} - {} {}",
                     timer.remaining_time_formatted(),
                     char::from_u32(0x23F0).unwrap(),
                     timer.finish_time_formatted(),
-                    (timer.percentage_elapsed() * 100.0).floor()
                 );
 
                 let text_color = match timer.paused() {
-                    true => Color::Rgb(44, 56, 54),
-                    false => Color::Rgb(255, 0, 0),
+                    _ => Color::Rgb(255, 0, 0),
                 };
                 let progress_color = match timer.paused() {
                     true => Color::Rgb(44, 56, 54),
@@ -61,11 +55,13 @@ impl Tui {
                         .block(
                             Block::default()
                                 .borders(Borders::NONE)
-                                .padding(Padding::new(1, 1, 0, 0)),
+                                .padding(Padding::new(2, 1, 1, 0)),
                         )
                         .style(Style::default().fg(text_color)),
-                    layout[1],
+                    layout[0],
                 );
+
+                let percentage = (timer.elapsed_ratio() * 100.0).floor().to_string();
 
                 frame.render_widget(
                     Gauge::default()
@@ -76,9 +72,10 @@ impl Tui {
                                 .borders(Borders::NONE)
                                 .padding(Padding::new(1, 1, 0, 0)),
                         )
+                        .label(percentage + "%")
                         .gauge_style(Style::default().fg(progress_color).bg(Color::Black))
-                        .ratio(timer.percentage_elapsed()),
-                    layout[2],
+                        .ratio(timer.elapsed_ratio()),
+                    layout[1],
                 );
             })
             .unwrap();

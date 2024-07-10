@@ -22,14 +22,21 @@ fn main() {
     let args = Args::parse();
 
     let duration_ms = Duration::minutes(args.duration).num_milliseconds();
-    let mut timer = Timer::new(duration_ms);
+    let on_expired = || -> () {
+        match Notificator::show_notification("Interval expired.", 0) {
+            Ok(_) => (),
+            Err(m) => panic!("{}", m),
+        }
+    };
+
+    let mut timer = Timer::new(duration_ms, on_expired);
 
     let mut tui = Tui::new();
 
     loop {
         timer.tick();
 
-        if timer.is_expired() || timer.terminated() {
+        if timer.terminated() {
             break;
         }
 
@@ -46,8 +53,5 @@ fn main() {
         };
     }
 
-    if !timer.terminated() {
-        Notificator::show_notification("Interval expired.", 0);
-    }
     Tui::clean_up().unwrap();
 }
